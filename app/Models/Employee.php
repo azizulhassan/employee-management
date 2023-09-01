@@ -19,7 +19,7 @@ class Employee extends Model
         'address',
         'zip_code',
         'birth_date',
-        'hired_date'
+        'date_hired'
     ];
 
     public function department() {

@@ -14,6 +14,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class EmployeeResource extends Resource
@@ -80,21 +81,21 @@ class EmployeeResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('first_name'),
-                Tables\Columns\TextColumn::make('last_name'),
-                Tables\Columns\TextColumn::make('address'),
-                Tables\Columns\TextColumn::make('country.name'),
-                Tables\Columns\TextColumn::make('state.name'),
-                Tables\Columns\TextColumn::make('city.name'),
+                Tables\Columns\TextColumn::make('first_name')->label('Name')
+                    ->getStateUsing(function (Model $record) {
+                        return $record->first_name . ' ' . $record->last_name;
+                    })
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('department.name'),
-                Tables\Columns\TextColumn::make('birth_date'),
                 Tables\Columns\TextColumn::make('date_hired'),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('department')
+                    ->relationship('department', 'name')
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

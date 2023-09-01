@@ -41,6 +41,11 @@ class EmployeeResource extends Resource
                     Forms\Components\TextInput::make('address'),
                     Forms\Components\Select::make('country_id')
                         ->options(Country::all()->pluck('name', 'id'))
+                        ->afterStateUpdated(function (callable $set) {
+                            // to update the state of the city and state fields
+                            $set('state_id', null);
+                            $set('city_id', null);
+                        })
                         ->searchable()
                         ->reactive()
                         ->required(),
@@ -52,6 +57,7 @@ class EmployeeResource extends Resource
 
                             return $country->states->pluck('name', 'id');
                         })
+                        ->afterStateUpdated(fn (callable $set) => $set('city_id', null))
                         ->searchable()
                         ->reactive()
                         ->required(),
@@ -82,9 +88,7 @@ class EmployeeResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('first_name')->label('Name')
-                    ->getStateUsing(function (Model $record) {
-                        return $record->first_name . ' ' . $record->last_name;
-                    })
+                    ->getStateUsing(fn (Model $record) => $record->first_name . ' ' . $record->last_name)
                     ->searchable(),
                 Tables\Columns\TextColumn::make('department.name'),
                 Tables\Columns\TextColumn::make('date_hired'),
